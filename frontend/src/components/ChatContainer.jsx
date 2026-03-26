@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { Globe } from "lucide-react";
 
 const ChatContainer = () => {
-  const { messages, getMessages, isMessagesLoading, selectedUser, subscribeToMessages, unsubscribeFromMessages } = useChatStore();
+  const { messages, getMessages, isMessagesLoading, selectedUser, subscribeToMessages, unsubscribeFromMessages, getUserProfile } = useChatStore();
   const { authUser, onlineUsers } = useAuthStore();
   const messageEndRef = useRef(null);
 
@@ -46,7 +46,12 @@ const ChatContainer = () => {
                  <Globe className="size-5 text-white" />
                </div>
             ) : (
-               <img src={selectedUser.profilePic || "https://ui-avatars.com/api/?name=" + selectedUser.fullName + "&background=27272a&color=fafafa"} alt="profile" className="size-11 rounded-full border border-border bg-border object-cover" />
+               <img 
+                 src={selectedUser.profilePic || "https://ui-avatars.com/api/?name=" + selectedUser.fullName + "&background=27272a&color=fafafa"} 
+                 alt="profile" 
+                 onClick={() => getUserProfile(selectedUser._id)}
+                 className="size-11 rounded-full border border-border bg-border object-cover cursor-pointer hover:opacity-80 transition-opacity" 
+               />
             )}
             {isOnline && (
               <span className="absolute bottom-0 right-0 size-3 bg-emerald-500 rounded-full ring-2 ring-surface" />
@@ -76,7 +81,12 @@ const ChatContainer = () => {
              <div key={message._id} className={`flex ${isMine ? "justify-end" : "justify-start"} animate-slide-up`}>
                 {!isMine && (
                    <div className="flex flex-col items-center mr-2 self-end mb-1 shrink-0">
-                     <img src={senderProfilePic} alt="avatar" className="size-8 rounded-full border border-border object-cover" />
+                     <img 
+                       src={senderProfilePic} 
+                       alt="avatar" 
+                       onClick={() => getUserProfile(rawSenderId)}
+                       className="size-8 rounded-full border border-border object-cover cursor-pointer hover:opacity-80 transition-opacity" 
+                     />
                    </div>
                 )}
                 <div className={`flex flex-col max-w-[80%] md:max-w-[70%] lg:max-w-[60%] ${isMine ? "items-end" : "items-start"}`}>

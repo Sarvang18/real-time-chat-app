@@ -123,3 +123,30 @@ export const checkAuth = (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+export const getUserProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Censor email (e.g., testuser@gmail.com -> t***@gmail.com)
+    const [namePart, domainPart] = user.email.split("@");
+    const censoredName = namePart.charAt(0) + "*".repeat(Math.max(3, namePart.length - 1));
+    const censoredEmail = `${censoredName}@${domainPart}`;
+
+    res.status(200).json({
+      _id: user._id,
+      fullName: user.fullName,
+      email: censoredEmail,
+      profilePic: user.profilePic,
+      createdAt: user.createdAt,
+    });
+  } catch (error) {
+    console.log("Error in getUserProfile controller:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

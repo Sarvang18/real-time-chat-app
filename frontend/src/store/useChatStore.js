@@ -7,8 +7,10 @@ export const useChatStore = create((set, get) => ({
   messages: [],
   users: [],
   selectedUser: { _id: "global", fullName: "Global Chat" },
+  selectedUserProfile: null,
   isUsersLoading: false,
   isMessagesLoading: false,
+  isUserProfileLoading: false,
 
   getUsers: async () => {
     set({ isUsersLoading: true });
@@ -33,6 +35,20 @@ export const useChatStore = create((set, get) => ({
       set({ isMessagesLoading: false });
     }
   },
+
+  getUserProfile: async (userId) => {
+    set({ isUserProfileLoading: true });
+    try {
+      const res = await axiosInstance.get(`/auth/profile/${userId}`);
+      set({ selectedUserProfile: res.data });
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error fetching user profile");
+    } finally {
+      set({ isUserProfileLoading: false });
+    }
+  },
+
+  clearUserProfile: () => set({ selectedUserProfile: null }),
 
   sendMessage: async (messageData) => {
     const { selectedUser, messages } = get();

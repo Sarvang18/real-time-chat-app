@@ -7,6 +7,7 @@ import ProfilePage from "./pages/ProfilePage";
 import { useAuthStore } from "./store/useAuthStore";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
+import UserProfileModal from "./components/UserProfileModal";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -32,6 +33,7 @@ const App = () => {
         <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
       </Routes>
 
+      <UserProfileModal />
       <Toaster />
     </div>
   );

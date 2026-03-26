@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
-import { Search, Users, Globe } from "lucide-react";
+import { Search, Users, Globe, ChevronDown, ChevronRight } from "lucide-react";
 
 const Sidebar = () => {
   const { users, getUsers, selectedUser, setSelectedUser, isUsersLoading } = useChatStore();
   const { onlineUsers } = useAuthStore();
   const [search, setSearch] = useState("");
+  const [isDirectMessagesOpen, setIsDirectMessagesOpen] = useState(true);
 
   useEffect(() => {
     getUsers();
@@ -77,51 +78,62 @@ const Sidebar = () => {
           </div>
         </button>
 
-        <div className="px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider hidden lg:block mt-2">
-          Direct Messages
-        </div>
+        <button 
+          onClick={() => setIsDirectMessagesOpen(!isDirectMessagesOpen)}
+          className="w-full flex items-center justify-between px-6 py-3 text-xs font-semibold text-text-muted hover:text-text-main transition-colors uppercase tracking-wider mt-2 group"
+        >
+          <span className="hidden lg:block">Direct Messages</span>
+          <span className="lg:hidden">DMs</span>
+          <div className="hidden lg:block">
+            {isDirectMessagesOpen ? <ChevronDown className="size-4 group-hover:text-primary transition-colors" /> : <ChevronRight className="size-4 group-hover:text-primary transition-colors" />}
+          </div>
+        </button>
 
         {/* Individual Users */}
-        {filteredUsers.map((user) => {
-          if (!user) return null;
-          const isOnline = (onlineUsers || []).includes(user._id);
-          const isSelected = selectedUser?._id === user._id;
+        {isDirectMessagesOpen && (
+          <div className="animate-in slide-in-from-top-2 fade-in duration-200">
+            {filteredUsers.map((user) => {
+              if (!user) return null;
+              const isOnline = (onlineUsers || []).includes(user._id);
+              const isSelected = selectedUser?._id === user._id;
 
-          return (
-            <button
-              key={user._id}
-              onClick={() => setSelectedUser(user)}
-              className={`w-full p-3 lg:px-6 flex items-center gap-4 transition-all border-l-2 ${
-                isSelected 
-                  ? "bg-primary/10 border-primary" 
-                  : "border-transparent hover:bg-white/5"
-              }`}
-            >
-              <div className="relative mx-auto lg:mx-0 shrink-0">
-                <img
-                  src={user.profilePic || "https://ui-avatars.com/api/?name=" + user.fullName + "&background=27272a&color=fafafa"}
-                  alt={user.fullName}
-                  className="size-12 lg:size-10 object-cover rounded-full bg-border"
-                />
-                {isOnline && (
-                  <span className="absolute bottom-0 right-0 size-3 lg:size-2.5 bg-emerald-500 rounded-full ring-2 ring-surface" />
-                )}
-              </div>
+              return (
+                <button
+                  key={user._id}
+                  onClick={() => setSelectedUser(user)}
+                  className={`w-full p-3 lg:px-6 flex items-center gap-4 transition-all border-l-2 ${
+                    isSelected 
+                      ? "bg-primary/10 border-primary" 
+                      : "border-transparent hover:bg-white/5"
+                  }`}
+                >
+                  <div className="relative mx-auto lg:mx-0 shrink-0">
+                    <img
+                      src={user.profilePic || "https://ui-avatars.com/api/?name=" + user.fullName + "&background=27272a&color=fafafa"}
+                      alt={user.fullName}
+                      className="size-12 lg:size-10 object-cover rounded-full bg-border"
+                    />
+                    {isOnline && (
+                      <span className="absolute bottom-0 right-0 size-3 lg:size-2.5 bg-emerald-500 rounded-full ring-2 ring-surface" />
+                    )}
+                  </div>
 
-              <div className="flex-col text-left hidden lg:flex min-w-0 flex-1">
-                <div className="flex justify-between items-center w-full">
-                  <span className="font-medium truncate text-text-main text-sm">{user.fullName}</span>
-                </div>
-                <span className={`text-[11px] mt-0.5 ${isOnline ? "text-emerald-500 font-medium" : "text-text-muted"}`}>
-                  {isOnline ? "Online" : "Offline"}
-                </span>
+                  <div className="flex-col text-left hidden lg:flex min-w-0 flex-1">
+                    <div className="flex justify-between items-center w-full">
+                      <span className="font-medium truncate text-text-main text-sm">{user.fullName}</span>
+                    </div>
+                    <span className={`text-[11px] mt-0.5 ${isOnline ? "text-emerald-500 font-medium" : "text-text-muted"}`}>
+                      {isOnline ? "Online" : "Offline"}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+            {filteredUsers.length === 0 && (
+              <div className="text-center text-text-muted text-sm py-8 px-4 fade-in">
+                No recent contacts found.
               </div>
-            </button>
-          );
-        })}
-        {filteredUsers.length === 0 && (
-          <div className="text-center text-text-muted text-sm py-8 px-4">
-            No contacts found matching your search.
+            )}
           </div>
         )}
       </div>

@@ -6,7 +6,27 @@ import { getReceiverSocketId, io } from "../lib/socket.js";
 export const getUsersForSidebar = async (req, res) => {
   try {
     const loggedInUserId = req.user._id;
-    const filteredUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
+    
+    // Find all direct messages involving the logged-in user
+    const messages = await Message.find({
+      $or: [{ senderId: loggedInUserId }, { receiverId: loggedInUserId }],
+      isGlobal: { $ne: true }
+    }).select("senderId receiverId");
+
+    // Extract unique user IDs that the logged-in user has chatted with
+    const interactedUserIds = new Set();
+    messages.forEach((msg) => {
+      const senderStr = msg.senderId.toString();
+      const receiverStr = msg.receiverId.toString();
+      const meStr = loggedInUserId.toString();
+      
+      if (senderStr !== meStr) interactedUserIds.add(senderStr);
+      if (receiverStr !== meStr) interactedUserIds.add(receiverStr);
+    });
+
+    const filteredUsers = await User.find({ 
+      _id: { $in: Array.from(interactedUserIds) } 
+    }).select("-password");
 
     res.status(200).json(filteredUsers);
   } catch (error) {
