@@ -17,9 +17,18 @@ const __dirname = path.resolve();
 
 app.use(express.json({ limit: "50mb" })); // for parsing application/json and increasing limit for base64 images
 app.use(cookieParser());
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
+];
+if (process.env.CLIENT_URL) {
+  allowedOrigins.push(process.env.CLIENT_URL);
+}
+
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"],
+    origin: allowedOrigins,
     credentials: true,
   })
 );
